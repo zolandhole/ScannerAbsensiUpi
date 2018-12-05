@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Scanner Absensi Upi</string>
+    <string name="sambutan">Selamat Datang di ruangan</string>
+    <string name="absen">Absen</string>
+    <string name="nama_ruangan">Nama Ruangan</string>
+    <string name="perhatian">Scanner Absensi Bisa dilakukan 15 menit sebelum Matakuliah dimulai dan 15 menit setelah Matakuliah dimulai</string>
+    <string name="no_internet">Tidak ada koneksi internet</string>
+    <string name="no_connection">Tidak Ada Koneksi Internet</string>
+    <string name="loading">Memuat Data …</string>
+    <string name="retry">Ulangi</string>
+    <string name="kode_ruangan">Kode Ruangan</string>
+    <string name="done">SELESAI</string>
+    <string name="isi_form_ruangan_title">Masukan Identitas Ruangan</string>
 </resources>

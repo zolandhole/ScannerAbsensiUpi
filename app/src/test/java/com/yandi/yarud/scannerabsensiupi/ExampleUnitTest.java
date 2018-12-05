@@ -1,4 +1,4 @@
-package com.example.yarud.scannerabsensiupi;
+package com.yandi.yarud.scannerabsensiupi;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.example.yarud.scannerabsensiupi;
+package com.yandi.yarud.scannerabsensiupi;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
