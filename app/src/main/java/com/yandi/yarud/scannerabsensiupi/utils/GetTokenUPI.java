@@ -1,7 +1,6 @@
 package com.yandi.yarud.scannerabsensiupi.utils;
 
 import android.content.Context;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -55,11 +54,8 @@ public class GetTokenUPI {
                     public void onErrorResponse(VolleyError error) {
                         switch (bagian) {
                             case "FormRuangan": {
-//                                LoginActivity activity = (LoginActivity) context;
-//                                activity.displaySuccess();
-                                Toast.makeText(context, "Tidak ada Koneksi Internet", Toast.LENGTH_LONG).show();
-                                Log.e("USERNAME", username);
-                                Log.e("PASSWORD", password);
+                                FormRuanganActivity ruanganActivity = (FormRuanganActivity) context;
+                                ruanganActivity.displayFailed();
                                 break;
                             }
                         }
