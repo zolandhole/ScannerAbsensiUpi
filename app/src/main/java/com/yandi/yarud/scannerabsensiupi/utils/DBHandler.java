@@ -50,7 +50,27 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<Ruangan> getRuangan(){
+//    public Ruangan getRuangan(int id) {
+//        Ruangan ruangan = null;
+//        try {
+//            SQLiteDatabase db = this.getReadableDatabase();
+//            @SuppressLint("Recycle") Cursor cursor = db.query(TABLE_RUANGAN, new String[]{ID,
+//                            KODERUANGAN, NAMARUANGAN }, ID + "=?",
+//                    new String[]{String.valueOf(id)}, null, null, null, null);
+//            if (cursor != null && cursor.moveToFirst()) {
+//                cursor.moveToFirst();
+//                ruangan = new Ruangan(Integer.parseInt(
+//                        cursor.getString(0)),
+//                        cursor.getString(1),
+//                        cursor.getString(2));
+//            }
+//        }catch (Exception ez) {
+//            ez.printStackTrace();
+//        }
+//        return ruangan;
+//    }
+
+    public List<Ruangan> getAllRuangan(){
         List<Ruangan> ruanganList = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_RUANGAN;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -65,6 +85,16 @@ public class DBHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         return ruanganList;
+    }
+
+    public void updateRuangan(Ruangan ruangan) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(ID, ruangan.getIdRuangan());
+        values.put(KODERUANGAN, ruangan.getKodeRuangan());
+        values.put(NAMARUANGAN, ruangan.getRuangan());
+        db.update(TABLE_RUANGAN, values, ID + " = ?",
+                new String[]{String.valueOf(ruangan.getIdRuangan())});
     }
 
     public void deleteRuangan(){

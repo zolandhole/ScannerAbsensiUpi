@@ -1,12 +1,19 @@
 package com.yandi.yarud.scannerabsensiupi;
 
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yandi.yarud.scannerabsensiupi.models.Ruangan;
 import com.yandi.yarud.scannerabsensiupi.utils.DBHandler;
@@ -41,6 +48,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             isiFormRuangan();
         } else if (koderuanganDB.equals("")){
             isiFormRuangan();
+        } else {
+            namaRuangan.setText(namaRuanganDB);
+            namaRuangan.setVisibility(View.VISIBLE);
         }
     }
 
@@ -52,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void getDatabase() {
         try {
-            List<Ruangan> listRuangan = dbHandler.getRuangan();
+            List<Ruangan> listRuangan = dbHandler.getAllRuangan();
             for (Ruangan ruangan: listRuangan){
                 koderuanganDB = ruangan.getKodeRuangan();
                 namaRuanganDB = ruangan.getRuangan();
@@ -131,10 +141,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 matikanPengecekanInternet();
                 break;
             case R.id.MainCardViewSetting:
-                //ke Pengaturan
-                matikanPengecekanInternet();
+                keamananDialog();
                 break;
         }
+    }
+
+    private void keamananDialog() {
+        final String usernameEdit = "admin", kataSandi = "admin123";
+        @SuppressLint("InflateParams") View subview = getLayoutInflater().inflate(R.layout.dialog_layout,null);
+        final EditText subUserAdmin = subview.findViewById(R.id.userAdmin);
+        final EditText subPasswordAdmin = subview.findViewById(R.id.passwordAdmin);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.todoDialogLight);
+        builder.setIcon(R.drawable.ic_info)
+                .setTitle("Keamanan")
+                .setMessage("Masukan user & password admin untuk merubah data ruangan !")
+                .setView(subview)
+                .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (subUserAdmin.getText().toString().equals("")){
+                            Toast.makeText(MainActivity.this, "Masukan Username", Toast.LENGTH_SHORT).show();
+                        } else if (subPasswordAdmin.getText().toString().equals("")){
+                            Toast.makeText(MainActivity.this, "Masukan Password", Toast.LENGTH_SHORT).show();
+                        } else {
+                            if (!subUserAdmin.getText().toString().equals(usernameEdit)){
+                                Toast.makeText(MainActivity.this, "Username salah", Toast.LENGTH_SHORT).show();
+                            } else {
+                                if (!subPasswordAdmin.getText().toString().equals(kataSandi)){
+                                    Toast.makeText(MainActivity.this, "Password salah", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    keFormRuanganActivity();
+                                }
+                            }
+                        }
+                    }
+                })
+                .setNeutralButton("Tidak", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        Button yes = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        yes.setTextColor(Color.rgb(29,145,36));
+    }
+
+    private void keFormRuanganActivity() {
+        dbHandler.deleteRuangan();
+        Intent intent = new Intent(MainActivity.this, FormRuanganActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     @Override

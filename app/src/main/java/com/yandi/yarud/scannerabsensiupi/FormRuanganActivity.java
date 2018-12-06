@@ -1,12 +1,12 @@
 package com.yandi.yarud.scannerabsensiupi;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -18,8 +18,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.yandi.yarud.scannerabsensiupi.models.Ruangan;
 import com.yandi.yarud.scannerabsensiupi.networks.Config;
 import com.yandi.yarud.scannerabsensiupi.utils.CheckConnection;
+import com.yandi.yarud.scannerabsensiupi.utils.DBHandler;
 import com.yandi.yarud.scannerabsensiupi.utils.GetTokenUPI;
 
 import org.json.JSONArray;
@@ -28,18 +30,19 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FormRuanganActivity extends AppCompatActivity implements Spinner.OnItemSelectedListener {
 
     private Spinner spinner;
-    private EditText editTextNamaRuangan;
     private ArrayList<String> ruangans;
     private JSONArray dt_mk;
     private String username = "1600862";
     private Button input_wd_btn_selesai;
-    private TextView textViewRuangan;
+    private TextView textViewRuangan,textViewKodeRuangan;
     private ProgressBar progressBarIsiForm;
+    private DBHandler db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +50,21 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
         setContentView(R.layout.activity_form_ruangan);
         input_wd_btn_selesai = findViewById(R.id.input_wd_btn_selesai);
         spinner = findViewById(R.id.spinner);
-        editTextNamaRuangan = findViewById(R.id.editTextNamaRuangan);
+        textViewKodeRuangan = findViewById(R.id.textViewKodeRuangan);
         textViewRuangan = findViewById(R.id.textViewRuangan);
         progressBarIsiForm = findViewById(R.id.progressBarIsiForm);
-
+        db = new DBHandler(FormRuanganActivity.this);
         ruangans = new ArrayList<>();
         spinner.setOnItemSelectedListener(FormRuanganActivity.this);
         displayLoading();
         initRunning();
+
+        input_wd_btn_selesai.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                simpanKeDatabase();
+            }
+        });
     }
 
     private void initRunning(){
@@ -71,7 +81,7 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     public void displayFailed() {
         input_wd_btn_selesai.setVisibility(View.GONE);
         spinner.setVisibility(View.GONE);
-        editTextNamaRuangan.setVisibility(View.GONE);
+        textViewKodeRuangan.setVisibility(View.GONE);
         textViewRuangan.setText(R.string.no_connection);
         progressBarIsiForm.setVisibility(View.GONE);
     }
@@ -79,7 +89,7 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     private void displaySuccess() {
         input_wd_btn_selesai.setVisibility(View.VISIBLE);
         spinner.setVisibility(View.VISIBLE);
-        editTextNamaRuangan.setVisibility(View.VISIBLE);
+        textViewKodeRuangan.setVisibility(View.VISIBLE);
         textViewRuangan.setText(R.string.isi_form_ruangan_title);
         progressBarIsiForm.setVisibility(View.GONE);
     }
@@ -87,7 +97,7 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     private void displayLoading() {
         input_wd_btn_selesai.setVisibility(View.GONE);
         spinner.setVisibility(View.GONE);
-        editTextNamaRuangan.setVisibility(View.GONE);
+        textViewKodeRuangan.setVisibility(View.GONE);
         textViewRuangan.setText(R.string.isi_form_ruangan_title);
         progressBarIsiForm.setVisibility(View.VISIBLE);
     }
@@ -143,7 +153,7 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     private String getKodeMK(int position){
         String kodeMK = "";
         try {
-            JSONObject jsonObject = dt_mk.getJSONObject(position);
+            JSONObject jsonObject = dt_mk.getJSONObject(position-1);
             kodeMK = jsonObject.getString(Config.TAG_KODERUANGAN);
             displaySuccess();
         } catch (JSONException e) {
@@ -153,21 +163,51 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
         return kodeMK;
     }
 
+    private void simpanKeDatabase() {
+        if (spinner.getSelectedItem().toString().equals("Pilih Ruangan ...")){
+            Toast.makeText(this, "Anda belum memilih Ruangan", Toast.LENGTH_SHORT).show();
+        } else {
+            if (!CheckConnection.apakahTerkoneksiKeInternet(this)){
+                Toast.makeText(getApplicationContext(),"Tidak ada koneksi Internet",Toast.LENGTH_SHORT).show();
+                displayFailed();
+            } else {
+                String kodeRuangan = "";
+                List<Ruangan> listRuangan = db.getAllRuangan();
+                for (Ruangan ruangan: listRuangan){
+                    kodeRuangan = ruangan.getKodeRuangan();
+                }
+                if (kodeRuangan == null){
+                    db.addRuangan(new Ruangan(1,textViewKodeRuangan.getText().toString(),spinner.getSelectedItem().toString()));
+                } else if (kodeRuangan.equals("")) {
+                    db.addRuangan(new Ruangan(1, textViewKodeRuangan.getText().toString(), spinner.getSelectedItem().toString()));
+                } else {
+                    db.updateRuangan(new Ruangan(1, textViewKodeRuangan.getText().toString(), spinner.getSelectedItem().toString()));
+                }
+                keMainActivity();
+
+            }
+        }
+    }
+
+    private void keMainActivity() {
+        Intent intent = new Intent(FormRuanganActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String test = spinner.getSelectedItem().toString();
         if (test.equals("Pilih Ruangan ...")){
-            editTextNamaRuangan.setText("");
+            textViewKodeRuangan.setText("");
         } else {
-            editTextNamaRuangan.setText(getKodeMK(position));
+            textViewKodeRuangan.setText(getKodeMK(position));
         }
         displaySuccess();
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        editTextNamaRuangan.setText("");
+        textViewKodeRuangan.setText("");
     }
-
-
 }
