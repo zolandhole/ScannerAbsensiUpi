@@ -199,21 +199,14 @@
                     app:layout_constraintEnd_toStartOf="@+id/ButtonDiskusiActKomentar"
                     app:layout_constraintStart_toStartOf="parent">
 
-                    <EditText
-                        android:id="@+id/editTextKodeRuangan"
+                    <Spinner
+                        android:id="@+id/spinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
-                        android:background="@null"
-                        android:hint="@string/kode_ruangan"
-                        android:inputType="textMultiLine"
-                        android:overScrollMode="always"
-                        android:scrollbarStyle="insideInset"
-                        android:scrollbars="vertical"
-                        android:textCursorDrawable="@null"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
