@@ -4,7 +4,7 @@
     <string name="absen">Absen</string>
     <string name="nama_ruangan">Nama Ruangan</string>
     <string name="perhatian">Scanner Absensi Bisa dilakukan 15 menit sebelum Matakuliah dimulai dan 15 menit setelah Matakuliah dimulai</string>
-    <string name="no_internet">Tidak ada koneksi internet</string>
+    <string name="no_internet">Tidak ada koneksi internet, klik layar untuk mengulangi koneksi</string>
     <string name="no_connection">Tidak Ada Koneksi Internet</string>
     <string name="loading">Memuat Data …</string>
     <string name="retry">Ulangi</string>
@@ -13,4 +13,6 @@
     <string name="isi_form_ruangan_title">Masukan Identitas Ruangan</string>
     <string name="user">User</string>
     <string name="passwordAdmin">Password</string>
+    <string name="selamat_belajar">Selamat Belajar</string>
+    <string name="developer">Yadi Rudiyansah</string>
 </resources>

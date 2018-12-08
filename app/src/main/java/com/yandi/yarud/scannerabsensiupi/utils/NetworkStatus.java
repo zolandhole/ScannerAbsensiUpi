@@ -2,8 +2,10 @@ package com.yandi.yarud.scannerabsensiupi.utils;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.yandi.yarud.scannerabsensiupi.MainActivity;
+import com.yandi.yarud.scannerabsensiupi.ScanQRActivity;
 
 import java.util.TimerTask;
 
@@ -23,6 +25,9 @@ public class NetworkStatus extends TimerTask {
                     MainActivity mainActivity = (MainActivity) context;
                     mainActivity.displaySuccess();
                     break;
+                case "scan":
+                    Log.w("SCAN", "ADA KONEKSI INTERNET");
+                    break;
             }
         } else {
             switch (halaman){
@@ -30,6 +35,11 @@ public class NetworkStatus extends TimerTask {
                     Log.e("YARUD", "TIDAK ADA KONEKSI INTERNET");
                     MainActivity mainActivity = (MainActivity) context;
                     mainActivity.displayFailed();
+                    break;
+                case "scan":
+                    Log.e("SCAN", "TIDAK ADA KONEKSI INTERNET");
+                    ScanQRActivity scanQRActivity = (ScanQRActivity) context;
+                    scanQRActivity.finish();
                     break;
             }
         }

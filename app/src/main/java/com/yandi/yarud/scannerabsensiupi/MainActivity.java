@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yandi.yarud.scannerabsensiupi.models.Ruangan;
+import com.yandi.yarud.scannerabsensiupi.utils.CheckConnection;
 import com.yandi.yarud.scannerabsensiupi.utils.DBHandler;
 import com.yandi.yarud.scannerabsensiupi.utils.NetworkStatus;
 
@@ -27,15 +29,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CardView scannerButton, settingButton;
     private TextView namaRuangan, informasiText;
     private ProgressBar progressBar;
-    final int waktu = 5000;
+    final int waktu = 60 * 1000;
     private Timer timer;
     private DBHandler dbHandler;
     private String koderuanganDB, namaRuanganDB;
+    private ConstraintLayout layarUtama;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         initView();
         initListenner();
         initRunning();
@@ -112,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         namaRuangan.setVisibility(View.GONE);
         namaRuangan.setText(R.string.nama_ruangan);
         dbHandler = new DBHandler(MainActivity.this);
+        layarUtama.setOnClickListener(this);
     }
 
     private void initView() {
@@ -120,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         namaRuangan = findViewById(R.id.textViewNamaRuangan);
         informasiText = findViewById(R.id.textViewInfo);
         progressBar = findViewById(R.id.progressBar);
+        layarUtama = findViewById(R.id.MainConstraint);
     }
 
     private void cekInternet(){
@@ -137,13 +143,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.MainCardViewMhsAbsen:
-                //ke Scanner
-                matikanPengecekanInternet();
+                keScanActivity();
                 break;
             case R.id.MainCardViewSetting:
                 keamananDialog();
                 break;
+            case R.id.MainConstraint:
+                new CheckConnection();
+                if (!CheckConnection.apakahTerkoneksiKeInternet(MainActivity.this)){
+                    Toast.makeText(this, "Belum ada koneksi Internet", Toast.LENGTH_SHORT).show();
+                    displayFailed();
+                } else {
+                    displaySuccess();
+                }
+                break;
         }
+    }
+
+    private void keScanActivity() {
+        Intent intent = new Intent(MainActivity.this, ScanQRActivity.class);
+        startActivity(intent);
     }
 
     private void keamananDialog() {
