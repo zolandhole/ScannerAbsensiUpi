@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.yandi.yarud.scannerabsensiupi.FormRuanganActivity;
 import com.yandi.yarud.scannerabsensiupi.MainActivity;
 import com.yandi.yarud.scannerabsensiupi.ScanQRActivity;
 
@@ -28,6 +29,9 @@ public class NetworkStatus extends TimerTask {
                 case "scan":
                     Log.w("SCAN", "ADA KONEKSI INTERNET");
                     break;
+                case "form":
+                    Log.w("FORM", "ADA KONEKSI INTERNET");
+                    break;
             }
         } else {
             switch (halaman){
@@ -40,6 +44,11 @@ public class NetworkStatus extends TimerTask {
                     Log.e("SCAN", "TIDAK ADA KONEKSI INTERNET");
                     ScanQRActivity scanQRActivity = (ScanQRActivity) context;
                     scanQRActivity.finish();
+                    break;
+                case "form":
+                    Log.e("FORM", "TIDAK ADA KONEKSI INTERNET");
+                    FormRuanganActivity formRuanganActivity = (FormRuanganActivity) context;
+                    formRuanganActivity.displayFailed();
                     break;
             }
         }

@@ -23,6 +23,7 @@ import com.yandi.yarud.scannerabsensiupi.networks.Config;
 import com.yandi.yarud.scannerabsensiupi.utils.CheckConnection;
 import com.yandi.yarud.scannerabsensiupi.utils.DBHandler;
 import com.yandi.yarud.scannerabsensiupi.utils.GetTokenUPI;
+import com.yandi.yarud.scannerabsensiupi.utils.NetworkStatus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 
 public class FormRuanganActivity extends AppCompatActivity implements Spinner.OnItemSelectedListener {
 
@@ -43,6 +45,8 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     private TextView textViewRuangan,textViewKodeRuangan;
     private ProgressBar progressBarIsiForm;
     private DBHandler db;
+    private Timer timer;
+    final int waktu = 10 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,27 +83,42 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     }
 
     public void displayFailed() {
-        input_wd_btn_selesai.setVisibility(View.GONE);
-        spinner.setVisibility(View.GONE);
-        textViewKodeRuangan.setVisibility(View.GONE);
-        textViewRuangan.setText(R.string.no_connection);
-        progressBarIsiForm.setVisibility(View.GONE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                input_wd_btn_selesai.setVisibility(View.GONE);
+                spinner.setVisibility(View.GONE);
+                textViewKodeRuangan.setVisibility(View.GONE);
+                textViewRuangan.setText(R.string.no_connection);
+                progressBarIsiForm.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void displaySuccess() {
-        input_wd_btn_selesai.setVisibility(View.VISIBLE);
-        spinner.setVisibility(View.VISIBLE);
-        textViewKodeRuangan.setVisibility(View.VISIBLE);
-        textViewRuangan.setText(R.string.isi_form_ruangan_title);
-        progressBarIsiForm.setVisibility(View.GONE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                input_wd_btn_selesai.setVisibility(View.VISIBLE);
+                spinner.setVisibility(View.VISIBLE);
+                textViewKodeRuangan.setVisibility(View.VISIBLE);
+                textViewRuangan.setText(R.string.isi_form_ruangan_title);
+                progressBarIsiForm.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void displayLoading() {
-        input_wd_btn_selesai.setVisibility(View.GONE);
-        spinner.setVisibility(View.GONE);
-        textViewKodeRuangan.setVisibility(View.GONE);
-        textViewRuangan.setText(R.string.isi_form_ruangan_title);
-        progressBarIsiForm.setVisibility(View.VISIBLE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                input_wd_btn_selesai.setVisibility(View.GONE);
+                spinner.setVisibility(View.GONE);
+                textViewKodeRuangan.setVisibility(View.GONE);
+                textViewRuangan.setText(R.string.isi_form_ruangan_title);
+                progressBarIsiForm.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     public void RunningPage(final String token) {
@@ -209,5 +228,28 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         textViewKodeRuangan.setText("");
+    }
+
+    private void cekInternet(){
+        timer = new Timer();
+        timer.schedule(new NetworkStatus(this, "form"),0,waktu);
+    }
+
+    private void matikanPengecekanInternet(){
+        timer.cancel();
+        timer.purge();
+        timer = new Timer();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        matikanPengecekanInternet();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        cekInternet();
     }
 }
