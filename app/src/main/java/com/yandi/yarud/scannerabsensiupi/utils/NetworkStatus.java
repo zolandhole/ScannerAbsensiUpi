@@ -30,6 +30,8 @@ public class NetworkStatus extends TimerTask {
                     Log.w("SCAN", "ADA KONEKSI INTERNET");
                     break;
                 case "form":
+                    FormRuanganActivity formRuanganActivity = (FormRuanganActivity) context;
+                    formRuanganActivity.displaySuccess();
                     Log.w("FORM", "ADA KONEKSI INTERNET");
                     break;
             }

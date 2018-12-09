@@ -95,7 +95,7 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
         });
     }
 
-    private void displaySuccess() {
+    public void displaySuccess() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

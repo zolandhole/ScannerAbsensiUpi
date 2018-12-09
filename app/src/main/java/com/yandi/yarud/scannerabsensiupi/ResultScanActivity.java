@@ -87,7 +87,7 @@ public class ResultScanActivity extends AppCompatActivity {
         final String nimHasil = parseHasil[0];
         final String waktuHasil = parseHasil[2];
 
-        final String DataService = "INTAN NURFAEDAH, 1600862, YADI RUDIYANSAH, 1600861";
+        final String DataService = "INTAN NURFAEDAH, 1600862, YADI RUDIYANSAH, 1600861, HASBI SALAAM, 1705429, PROF WAWAN, 131946757";
         if (DataService.toLowerCase().contains(nimHasil.toLowerCase())){
             if (waktuHasil.equals(dateformat)){
                 textViewResultNama.setText(namaHasil);
