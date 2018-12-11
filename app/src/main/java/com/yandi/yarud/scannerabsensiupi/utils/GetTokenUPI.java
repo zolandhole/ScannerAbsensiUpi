@@ -29,47 +29,47 @@ public class GetTokenUPI {
     }
 
     //AMBIL TOKEN UNTUK GET
-    public void getToken (final String username, final String password){
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, Config.URL_LOGIN,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            token = jsonObject.getString("token");
-                            switch (bagian){
-                                case "FormRuangan":
-                                    FormRuanganActivity ruanganActivity = (FormRuanganActivity) context;
-                                    ruanganActivity.RunningPage(token);
-                                    break;
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Toast.makeText(context, "ELLOR", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        switch (bagian) {
-                            case "FormRuangan": {
-                                FormRuanganActivity ruanganActivity = (FormRuanganActivity) context;
-                                ruanganActivity.displayFailed();
-                                break;
-                            }
-                        }
-                    }
-                }){
-            @Override
-            protected Map<String, String> getParams(){
-                Map<String,String> params = new HashMap<>();
-                params.put("username", username);
-                params.put("password", password);
-                return params;
-            }
-        };
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-        requestQueue.add(stringRequest);
-    }
+//    public void getToken (final String username, final String password){
+//        StringRequest stringRequest = new StringRequest(Request.Method.POST, Config.URL_LOGIN,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//                        try {
+//                            JSONObject jsonObject = new JSONObject(response);
+//                            token = jsonObject.getString("token");
+//                            switch (bagian){
+//                                case "FormRuangan":
+//                                    FormRuanganActivity ruanganActivity = (FormRuanganActivity) context;
+//                                    ruanganActivity.RunningPage(token);
+//                                    break;
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                            Toast.makeText(context, "ELLOR", Toast.LENGTH_LONG).show();
+//                        }
+//                    }
+//                },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        switch (bagian) {
+//                            case "FormRuangan": {
+//                                FormRuanganActivity ruanganActivity = (FormRuanganActivity) context;
+//                                ruanganActivity.displayFailed();
+//                                break;
+//                            }
+//                        }
+//                    }
+//                }){
+//            @Override
+//            protected Map<String, String> getParams(){
+//                Map<String,String> params = new HashMap<>();
+//                params.put("username", username);
+//                params.put("password", password);
+//                return params;
+//            }
+//        };
+//        RequestQueue requestQueue = Volley.newRequestQueue(context);
+//        requestQueue.add(stringRequest);
+//    }
 }

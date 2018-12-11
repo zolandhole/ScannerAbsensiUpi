@@ -2,25 +2,16 @@ package com.yandi.yarud.scannerabsensiupi.models;
 
 public class Ruangan {
     private int idRuangan;
-    private String kodeRuangan="", ruangan="";
+    private String kodeRuangan="", ruangan="", kodeFak="", namaFak="";
 
     public Ruangan(){}
-    public Ruangan(int idRuangan, String kodeRuangan, String ruangan) {
+    public Ruangan(int idRuangan, String kodeRuangan, String ruangan, String kodeFak, String namaFak) {
         this.idRuangan = idRuangan;
         this.kodeRuangan = kodeRuangan;
         this.ruangan = ruangan;
+        this.kodeFak = kodeFak;
+        this.namaFak = namaFak;
     }
-//
-//    public Ruangan(Ruangan ruangan){
-//        try {
-//            this.idRuangan = ruangan.getIdRuangan();
-//            this.kodeRuangan = ruangan.getKodeRuangan();
-//            this.ruangan = ruangan.getRuangan();
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//
-//    }
 
     public int getIdRuangan() {
         return idRuangan;
@@ -44,5 +35,21 @@ public class Ruangan {
 
     public void setRuangan(String ruangan) {
         this.ruangan = ruangan;
+    }
+
+    public String getKodeFak() {
+        return kodeFak;
+    }
+
+    public void setKodeFak(String kodeFak) {
+        this.kodeFak = kodeFak;
+    }
+
+    public String getNamaFak() {
+        return namaFak;
+    }
+
+    public void setNamaFak(String namaFak) {
+        this.namaFak = namaFak;
     }
 }
