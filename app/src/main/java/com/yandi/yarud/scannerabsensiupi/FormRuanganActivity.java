@@ -1,9 +1,11 @@
 package com.yandi.yarud.scannerabsensiupi;
 
+import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,8 +21,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
+import com.yandi.yarud.scannerabsensiupi.models.Ruangan;
 import com.yandi.yarud.scannerabsensiupi.networks.Config;
 import com.yandi.yarud.scannerabsensiupi.utils.CheckConnection;
+import com.yandi.yarud.scannerabsensiupi.utils.DBHandler;
 import com.yandi.yarud.scannerabsensiupi.utils.NetworkStatus;
 
 import org.json.JSONArray;
@@ -28,7 +32,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
@@ -39,12 +45,13 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     private ProgressBar progressBarForm;
     private Button btn_selesai;
     private TextView textViewTitle,textViewFak;
-    private JSONArray dataFak;
-    private ArrayList<String> ruangans;
+    private JSONArray dataFak, dataRuangan;
+    private ArrayList<String> ruangans, fakultas;
     private Spinner spinnerFak, spinnerRuangan;
     private Timer timer;
     final int waktu = 10 * 1000;
     private String kodeFak;
+    private DBHandler dbHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,18 +117,26 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     }
 
     private void initListener() {
+        dbHandler = new DBHandler(FormRuanganActivity.this);
         ruangans = new ArrayList<>();
+        fakultas = new ArrayList<>();
         spinnerFak.setOnItemSelectedListener(FormRuanganActivity.this);
         btn_selesai.setOnClickListener(FormRuanganActivity.this);
         spinnerRuangan.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
+                String ruangan = spinnerRuangan.getSelectedItem().toString();
+                if (ruangan.equals("Pilih Ruangan ...")){
+                    Toast.makeText(FormRuanganActivity.this, "Silahkan Pilih Ruangan", Toast.LENGTH_SHORT).show();
+                } else {
+                    btn_selesai.setVisibility(View.VISIBLE);
+                    Toast.makeText(FormRuanganActivity.this, "Klik Selesai untuk menyimpan ke Database", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
+                ruangans.clear();
             }
         });
     }
@@ -149,7 +164,7 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        pageFailed();
                     }
                 }){
             @Override
@@ -165,18 +180,18 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
     }
 
     private void getFakultas(JSONArray jsonArray) {
-        ruangans.add("Pilih Fakultas ...");
+        fakultas.add("Pilih Fakultas ...");
         for (int i=0; i<jsonArray.length(); i++){
             try {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                ruangans.add(jsonObject.getString("NAMAFAK"));
+                fakultas.add(jsonObject.getString("NAMAFAK"));
                 pageSuccess();
             } catch (JSONException e) {
                 pageFailed();
                 e.printStackTrace();
             }
         }
-        spinnerFak.setAdapter(new ArrayAdapter<>(FormRuanganActivity.this, android.R.layout.simple_spinner_dropdown_item, ruangans));
+        spinnerFak.setAdapter(new ArrayAdapter<>(FormRuanganActivity.this, android.R.layout.simple_spinner_dropdown_item, fakultas));
     }
 
     private String getKodeFak(int position){
@@ -200,58 +215,108 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
             constrainRuangan.setVisibility(View.GONE);
             textViewFak.setText("");
         } else {
+            ruangans.clear();
             textViewFak.setText(getKodeFak(position));
             kodeFak = textViewFak.getText().toString().trim();
             constrainRuangan.setVisibility(View.VISIBLE);
+            progressBarForm.setVisibility(View.VISIBLE);
+            ambilDataRuangan(kodeFak);
+            Log.e("YARUD", kodeFak);
         }
+    }
+
+    private void ambilDataRuangan(String kodeFak) {
+        progressBarForm.setVisibility(View.VISIBLE);
+        RequestQueue requestQueue = Volley.newRequestQueue(FormRuanganActivity.this);
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, Config.URL_RUANGAN+kodeFak, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        dataRuangan = response;
+                        getRuangan(dataRuangan);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        pageFailed();
+                    }
+                }){
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> params = new HashMap<>();
+                String creds = String.format("%s:%s","svc","kambinggulingmbe");
+                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
+                params.put("Authorization", auth);
+                return params;
+            }
+        };
+        requestQueue.add(jsonArrayRequest);
+    }
+
+    private void getRuangan(JSONArray jsonArray) {
+        ruangans.add("Pilih Ruangan ...");
+        for (int i=0; i<jsonArray.length(); i++){
+            try {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                ruangans.add(jsonObject.getString("KODERUANG"));
+                ruangans.removeAll(Collections.singletonList(""));
+                ruangans.removeAll(Collections.singletonList("null"));
+                progressBarForm.setVisibility(View.GONE);
+            } catch (JSONException e) {
+                pageFailed();
+                e.printStackTrace();
+            }
+        }
+        spinnerRuangan.setAdapter(new ArrayAdapter<>(FormRuanganActivity.this, android.R.layout.simple_spinner_dropdown_item, ruangans));
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_selesai:
-                Toast.makeText(this, "Test", Toast.LENGTH_SHORT).show();
+                simpanKeDatabase();
                 break;
         }
     }
 
-//    private void simpanKeDatabase() {
-////        if (spinner.getSelectedItem().toString().equals("Pilih Ruangan ...")){
-////            Toast.makeText(this, "Anda belum memilih Ruangan", Toast.LENGTH_SHORT).show();
-////        } else {
-////            if (!CheckConnection.apakahTerkoneksiKeInternet(this)){
-////                Toast.makeText(getApplicationContext(),"Tidak ada koneksi Internet",Toast.LENGTH_SHORT).show();
-////                displayFailed();
-////            } else {
-////                String kodeRuangan = "";
-////                List<Ruangan> listRuangan = db.getAllRuangan();
-////                for (Ruangan ruangan: listRuangan){
-////                    kodeRuangan = ruangan.getKodeRuangan();
-////                }
-////                if (kodeRuangan == null){
-////                    db.addRuangan(new Ruangan(1,textViewKodeRuangan.getText().toString(),spinner.getSelectedItem().toString()));
-////                } else if (kodeRuangan.equals("")) {
-////                    db.addRuangan(new Ruangan(1, textViewKodeRuangan.getText().toString(), spinner.getSelectedItem().toString()));
-////                } else {
-////                    db.updateRuangan(new Ruangan(1, textViewKodeRuangan.getText().toString(), spinner.getSelectedItem().toString()));
-////                }
-////                keMainActivity();
-////h
-////            }
-////        }
-//    }
+    private void simpanKeDatabase() {
+        if (spinnerRuangan.getSelectedItem().toString().equals("Pilih Ruangan ...")){
+            Toast.makeText(this, "Anda belum memilih Ruangan", Toast.LENGTH_SHORT).show();
+        } else {
+            if (!CheckConnection.apakahTerkoneksiKeInternet(this)){
+                Toast.makeText(getApplicationContext(),"Tidak ada koneksi Internet",Toast.LENGTH_SHORT).show();
+            } else {
+                String kodeRuangan = "";
+                List<Ruangan> listRuangan = dbHandler.getAllRuangan();
+                for (Ruangan ruangan: listRuangan){
+                    kodeRuangan = ruangan.getKodeRuangan();
+                }
+                if (kodeRuangan == null){
+                    dbHandler.addRuangan(new Ruangan(1,textViewFak.getText().toString(),spinnerRuangan.getSelectedItem().toString()));
+                } else if (kodeRuangan.equals("")) {
+                    dbHandler.addRuangan(new Ruangan(1,textViewFak.getText().toString(),spinnerRuangan.getSelectedItem().toString()));
+                } else {
+                    dbHandler.updateRuangan(new Ruangan(1,textViewFak.getText().toString(),spinnerRuangan.getSelectedItem().toString()));
+                }
+                keMainActivity();
 
-//    private void keMainActivity() {
-////        Intent intent = new Intent(FormRuanganActivity.this, MainActivity.class);
-////        startActivity(intent);
-////        finish();
-//    }
+            }
+        }
+    }
+
+    private void keMainActivity() {
+        Intent intent = new Intent(FormRuanganActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         textViewFak.setText("");
         constrainRuangan.setVisibility(View.GONE);
+        ruangans.clear();
     }
 
     private void cekInternet(){
