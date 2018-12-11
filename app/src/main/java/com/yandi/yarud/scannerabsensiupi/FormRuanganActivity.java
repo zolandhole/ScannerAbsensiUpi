@@ -236,7 +236,7 @@ public class FormRuanganActivity extends AppCompatActivity implements Spinner.On
 ////                    db.updateRuangan(new Ruangan(1, textViewKodeRuangan.getText().toString(), spinner.getSelectedItem().toString()));
 ////                }
 ////                keMainActivity();
-////
+////h
 ////            }
 ////        }
 //    }
