@@ -9,6 +9,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,12 +18,25 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.yandi.yarud.scannerabsensiupi.models.Ruangan;
+import com.yandi.yarud.scannerabsensiupi.networks.Config;
 import com.yandi.yarud.scannerabsensiupi.utils.CheckConnection;
 import com.yandi.yarud.scannerabsensiupi.utils.DBHandler;
 import com.yandi.yarud.scannerabsensiupi.utils.NetworkStatus;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -143,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.MainCardViewMhsAbsen:
-                keScanActivity();
+                cekJadwalRuangan();
                 break;
             case R.id.MainCardViewSetting:
                 keamananDialog();
@@ -160,7 +175,74 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void cekJadwalRuangan(){
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, Config.URL_JADWAL + namaRuanganDB,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            String kodemk = jsonObject.getString("kodemk");
+                            Toast.makeText(MainActivity.this, kodemk, Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MainActivity.this, "Tidak ada Jadwal", Toast.LENGTH_SHORT).show();
+                    }
+                }){
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> params = new HashMap<>();
+                String creds = String.format("%s:%s", "svc", "kambinggulingmbe");
+                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
+                params.put("Authorization", auth);
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+//    private void cekJadwalRuangan() {
+//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, Config.URL_JADWAL+namaRuanganDB, null,
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        try {
+//                            String status = response.getString("status");
+//                            String message = response.getString("message");
+//                            Log.e("YARUD", status+" "+message);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//
+//                    }
+//                })
+//        {
+//            @Override
+//            public Map<String, String> getHeaders() {
+//                HashMap<String, String> params = new HashMap<>();
+//                String creds = String.format("%s:%s", "svc", "kambinggulingmbe");
+//                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
+//                params.put("Authorization", auth);
+//                return params;
+//            }
+//        };
+//        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+//        requestQueue.add(jsonObjectRequest);
+//    }
+
     private void keScanActivity() {
+
         Intent intent = new Intent(MainActivity.this, ScanQRActivity.class);
         startActivity(intent);
     }
