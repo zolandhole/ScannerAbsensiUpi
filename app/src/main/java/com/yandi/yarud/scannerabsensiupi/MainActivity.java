@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             String kodemk = jsonObject.getString("kodemk");
-                            Toast.makeText(MainActivity.this, kodemk, Toast.LENGTH_SHORT).show();
+                            keScanActivity();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
