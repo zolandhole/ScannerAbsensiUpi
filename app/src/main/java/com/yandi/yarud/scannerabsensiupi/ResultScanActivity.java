@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -53,7 +54,7 @@ public class ResultScanActivity extends AppCompatActivity {
             }
         };
         handler.removeCallbacks(runnable);
-        handler.postDelayed(runnable,2*1000);
+        handler.postDelayed(runnable,3*1000);
 
         mp = MediaPlayer.create(this, R.raw.success);
         nmp = MediaPlayer.create(this, R.raw.unsuccess);
@@ -74,8 +75,9 @@ public class ResultScanActivity extends AppCompatActivity {
             imageViewSuccess.setImageResource(R.drawable.icon_question);
             textViewDoa.setText("Hmm !");
             textViewDoa.setTextColor(R.color.colorPrimary);
-            textViewResultNama.setText("QR Code siapa itu?");
+            textViewResultNama.setVisibility(View.GONE);
         } else {
+            textViewResultNama.setVisibility(View.VISIBLE);
             prosesHasil();
         }
     }
@@ -87,8 +89,9 @@ public class ResultScanActivity extends AppCompatActivity {
         final String nimHasil = parseHasil[0];
         final String waktuHasil = parseHasil[2];
 
-        final String DataService = "INTAN NURFAEDAH, 1600862, YADI RUDIYANSAH, 1600861, HASBI SALAAM, 1705429, PROF WAWAN, 131946757";
-        if (DataService.toLowerCase().contains(nimHasil.toLowerCase())){
+        final String dataNim = Objects.requireNonNull(getIntent().getExtras()).getString("DATANIM");
+        assert dataNim != null;
+        if (dataNim.toLowerCase().contains(nimHasil.toLowerCase())){
             if (waktuHasil.equals(dateformat)){
                 textViewResultNama.setText(namaHasil);
                 mp.start();

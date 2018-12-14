@@ -22,7 +22,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.yandi.yarud.scannerabsensiupi.models.Ruangan;
@@ -52,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String koderuanganDB, namaRuanganDB;
     private ConstraintLayout layarUtama;
     private ArrayList<String> listnim;
+    private String idmk;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             namaRuangan.setText(namaRuanganDB);
             namaRuangan.setVisibility(View.VISIBLE);
+            cekJadwalRuangan();
         }
     }
 
@@ -122,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 progressBar.setVisibility(View.GONE);
                 scannerButton.setVisibility(View.VISIBLE);
-                informasiText.setText(R.string.perhatian);
             }
         });
     }
@@ -161,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.MainCardViewMhsAbsen:
+                displayLoading();
                 cekJadwalRuangan();
                 break;
             case R.id.MainCardViewSetting:
@@ -192,18 +193,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                                String hari = jsonObject.getString("hari");
 //                                String jam1 = jsonObject.getString("jam1");
 //                                String jam2 = jsonObject.getString("jam2");
-                                String idmk = jsonObject.getString("id");
-                                getMahasiswa(idmk);
+                                idmk = jsonObject.getString("id");
                             }
+                            Log.e("YARUD", "BERHASIL");
+                            displaySuccess();
+                            getMahasiswa(idmk);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 },
                 new Response.ErrorListener() {
+                    @SuppressLint("SetTextI18n")
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        displaySuccess();
+                        informasiText.setText("Saat ini belum ada jadwal Matakuliah");
                         Toast.makeText(MainActivity.this, "Tidak ada Jadwal", Toast.LENGTH_SHORT).show();
+                        Log.e("YARUD", "GAGAL");
                     }
                 }){
             @Override
@@ -241,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        displaySuccess();
                         Toast.makeText(MainActivity.this, "Tidak ada Jadwal", Toast.LENGTH_SHORT).show();
                     }
                 }){
@@ -321,5 +329,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         cekInternet();
+        initRunning();
     }
 }

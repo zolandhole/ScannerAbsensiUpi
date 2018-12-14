@@ -22,7 +22,8 @@ public class ScanQRActivity extends AppCompatActivity implements ZXingScannerVie
     private ZXingScannerView mScannerView;
     private Timer timer;
     final int waktu = 10 * 1000;
-    final int waktuBerjalan = (60 * 1000);
+    final int waktuBerjalan = 30 * (60 * 1000);
+    private String dataNim;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -55,7 +56,7 @@ public class ScanQRActivity extends AppCompatActivity implements ZXingScannerVie
         };
         handler.removeCallbacks(runnable);
         handler.postDelayed(runnable,waktuBerjalan);
-
+        dataNim = Objects.requireNonNull(getIntent().getExtras()).getString("LISTNIM");
     }
 
     @Override
@@ -84,6 +85,7 @@ public class ScanQRActivity extends AppCompatActivity implements ZXingScannerVie
         String hasilScanEncripted = result.getText();
         Intent intent = new Intent(ScanQRActivity.this, ResultScanActivity.class);
         intent.putExtra("HASILSCAN", hasilScanEncripted);
+        intent.putExtra("DATANIM", dataNim);
         startActivity(intent);
         mScannerView.resumeCameraPreview(ScanQRActivity.this);
     }
