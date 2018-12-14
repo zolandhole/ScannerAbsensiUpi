@@ -31,9 +31,11 @@ import com.yandi.yarud.scannerabsensiupi.utils.CheckConnection;
 import com.yandi.yarud.scannerabsensiupi.utils.DBHandler;
 import com.yandi.yarud.scannerabsensiupi.utils.NetworkStatus;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private DBHandler dbHandler;
     private String koderuanganDB, namaRuanganDB;
     private ConstraintLayout layarUtama;
+    private ArrayList<String> listnim;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,9 +185,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onResponse(String response) {
                         try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            String kodemk = jsonObject.getString("kodemk");
-                            keScanActivity();
+                            JSONArray jsonArray = new JSONArray(response);
+                            for (int i=0; i<jsonArray.length(); i++){
+                                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+//                                String kodemk = jsonObject.getString("kodemk");
+//                                String hari = jsonObject.getString("hari");
+//                                String jam1 = jsonObject.getString("jam1");
+//                                String jam2 = jsonObject.getString("jam2");
+                                String idmk = jsonObject.getString("id");
+                                getMahasiswa(idmk);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -207,43 +217,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
         requestQueue.add(stringRequest);
     }
-//    private void cekJadwalRuangan() {
-//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, Config.URL_JADWAL+namaRuanganDB, null,
-//                new Response.Listener<JSONObject>() {
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//                        try {
-//                            String status = response.getString("status");
-//                            String message = response.getString("message");
-//                            Log.e("YARUD", status+" "+message);
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//
-//                    }
-//                })
-//        {
-//            @Override
-//            public Map<String, String> getHeaders() {
-//                HashMap<String, String> params = new HashMap<>();
-//                String creds = String.format("%s:%s", "svc", "kambinggulingmbe");
-//                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
-//                params.put("Authorization", auth);
-//                return params;
-//            }
-//        };
-//        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-//        requestQueue.add(jsonObjectRequest);
-//    }
 
-    private void keScanActivity() {
+    private void getMahasiswa(String idmk) {
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, Config.URL_MHS_MATKUL + idmk,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        listnim = new ArrayList<>();
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            for (int i=0; i<jsonArray.length(); i++){
+                                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                                listnim.add(jsonObject.getString("NIM"));
+                            }
+                            String ListNim = String.valueOf(listnim);
+                            keScanActivity(ListNim);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MainActivity.this, "Tidak ada Jadwal", Toast.LENGTH_SHORT).show();
+                    }
+                }){
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> params = new HashMap<>();
+                String creds = String.format("%s:%s", "svc", "kambinggulingmbe");
+                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
+                params.put("Authorization", auth);
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
 
+    private void keScanActivity(String listNim) {
+        Toast.makeText(this, listNim, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(MainActivity.this, ScanQRActivity.class);
+        intent.putExtra("LISTNIM",listNim);
         startActivity(intent);
     }
 
