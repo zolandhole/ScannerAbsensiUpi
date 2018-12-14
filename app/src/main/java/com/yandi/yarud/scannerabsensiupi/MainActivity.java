@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -43,7 +44,7 @@ import java.util.Timer;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private CardView scannerButton, settingButton;
-    private TextView namaRuangan, informasiText;
+    private TextView namaRuangan, informasiText, textViewGreeting;
     private ProgressBar progressBar;
     final int waktu = 60 * 1000;
     private Timer timer;
@@ -60,101 +61,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initView();
         initListenner();
+        animation();
         initRunning();
-    }
 
-    private void initRunning() {
-        displayLoading();
-        getDatabase();
-        if (koderuanganDB == null){
-            isiFormRuangan();
-        } else if (koderuanganDB.equals("")){
-            isiFormRuangan();
-        } else {
-            namaRuangan.setText(namaRuanganDB);
-            namaRuangan.setVisibility(View.VISIBLE);
-            cekJadwalRuangan();
-        }
-    }
-
-    private void isiFormRuangan() {
-        Intent intent = new Intent(MainActivity.this, FormRuanganActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    private void getDatabase() {
-        try {
-            List<Ruangan> listRuangan = dbHandler.getAllRuangan();
-            for (Ruangan ruangan: listRuangan){
-                koderuanganDB = ruangan.getKodeRuangan();
-                namaRuanganDB = ruangan.getRuangan();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        dbHandler.close();
-    }
-
-    private void displayLoading() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.VISIBLE);
-                scannerButton.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    public void displayFailed() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.GONE);
-                scannerButton.setVisibility(View.GONE);
-                informasiText.setText(R.string.no_internet);
-            }
-        });
-    }
-
-    public void displaySuccess(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.GONE);
-                scannerButton.setVisibility(View.VISIBLE);
-            }
-        });
-    }
-
-    private void initListenner() {
-        scannerButton.setOnClickListener(this);
-        settingButton.setOnClickListener(this);
-        informasiText.setText(R.string.perhatian);
-        namaRuangan.setVisibility(View.GONE);
-        namaRuangan.setText(R.string.nama_ruangan);
-        dbHandler = new DBHandler(MainActivity.this);
-        layarUtama.setOnClickListener(this);
-    }
-
-    private void initView() {
-        scannerButton = findViewById(R.id.MainCardViewMhsAbsen);
-        settingButton = findViewById(R.id.MainCardViewSetting);
-        namaRuangan = findViewById(R.id.textViewNamaRuangan);
-        informasiText = findViewById(R.id.textViewInfo);
-        progressBar = findViewById(R.id.progressBar);
-        layarUtama = findViewById(R.id.MainConstraint);
-    }
-
-    private void cekInternet(){
-            timer = new Timer();
-            timer.schedule(new NetworkStatus(this, "main"),0,waktu);
-    }
-
-    private void matikanPengecekanInternet(){
-            timer.cancel();
-            timer.purge();
-            timer = new Timer();
     }
 
     @Override
@@ -179,97 +88,158 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void cekJadwalRuangan(){
-        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, Config.URL_JADWAL + namaRuanganDB,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            for (int i=0; i<jsonArray.length(); i++){
-                                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-//                                String kodemk = jsonObject.getString("kodemk");
-//                                String hari = jsonObject.getString("hari");
-//                                String jam1 = jsonObject.getString("jam1");
-//                                String jam2 = jsonObject.getString("jam2");
-                                idmk = jsonObject.getString("id");
+    private void initView() {
+        scannerButton = findViewById(R.id.MainCardViewMhsAbsen);
+        settingButton = findViewById(R.id.MainCardViewSetting);
+        namaRuangan = findViewById(R.id.textViewNamaRuangan);
+        informasiText = findViewById(R.id.textViewInfo);
+        progressBar = findViewById(R.id.progressBar);
+        layarUtama = findViewById(R.id.MainConstraint);
+        textViewGreeting = findViewById(R.id.textViewGreeting);
+    }
+
+    private void initListenner() {
+        scannerButton.setOnClickListener(this);
+        settingButton.setOnClickListener(this);
+        informasiText.setText(R.string.perhatian);
+        namaRuangan.setVisibility(View.GONE);
+        namaRuangan.setText(R.string.nama_ruangan);
+        dbHandler = new DBHandler(MainActivity.this);
+        layarUtama.setOnClickListener(this);
+        Typeface caviar = Typeface.createFromAsset(getAssets(),"fonts/CaviarDreams.ttf");
+        namaRuangan.setTypeface(caviar);
+    }
+
+    private void animation() {
+        prepareAnimation();
+        textViewGreeting.animate().alpha(1).translationX(0).setDuration(600).setStartDelay(500).start();
+        namaRuangan.animate().alpha(1).translationX(0).setDuration(600).setStartDelay(700).start();
+        scannerButton.animate().alpha(1).translationX(0).setDuration(600).setStartDelay(900).start();
+    }
+        private void prepareAnimation() {
+            textViewGreeting.setAlpha(0);
+            textViewGreeting.setTranslationX(-300);
+
+            namaRuangan.setAlpha(0);
+            namaRuangan.setTranslationX(-300);
+
+            scannerButton.setAlpha(0);
+            scannerButton.setTranslationX(-500);
+        }
+
+    private void initRunning() {
+        displayLoading();
+        getDatabase();
+        if (koderuanganDB == null){
+            isiFormRuangan();
+        } else if (koderuanganDB.equals("")){
+            isiFormRuangan();
+        } else {
+            namaRuangan.setText(namaRuanganDB);
+            namaRuangan.setVisibility(View.VISIBLE);
+            cekJadwalRuangan();
+        }
+    }
+        private void getDatabase() {
+            try {
+                List<Ruangan> listRuangan = dbHandler.getAllRuangan();
+                for (Ruangan ruangan: listRuangan){
+                    koderuanganDB = ruangan.getKodeRuangan();
+                    namaRuanganDB = ruangan.getRuangan();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            dbHandler.close();
+        }
+        private void isiFormRuangan() {
+            Intent intent = new Intent(MainActivity.this, FormRuanganActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        private void cekJadwalRuangan(){
+            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, Config.URL_JADWAL + namaRuanganDB,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONArray jsonArray = new JSONArray(response);
+                                for (int i=0; i<jsonArray.length(); i++){
+                                    JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+    //                                String kodemk = jsonObject.getString("kodemk");
+    //                                String hari = jsonObject.getString("hari");
+    //                                String jam1 = jsonObject.getString("jam1");
+    //                                String jam2 = jsonObject.getString("jam2");
+                                    idmk = jsonObject.getString("id");
+                                }
+                                Log.e("YARUD", "BERHASIL");
+                                displaySuccess();
+                                getMahasiswa(idmk);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                            Log.e("YARUD", "BERHASIL");
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @SuppressLint("SetTextI18n")
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
                             displaySuccess();
-                            getMahasiswa(idmk);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            informasiText.setText("Saat ini belum ada jadwal Matakuliah");
+                            Toast.makeText(MainActivity.this, "Tidak ada Jadwal", Toast.LENGTH_SHORT).show();
+                            Log.e("YARUD", "GAGAL");
                         }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        displaySuccess();
-                        informasiText.setText("Saat ini belum ada jadwal Matakuliah");
-                        Toast.makeText(MainActivity.this, "Tidak ada Jadwal", Toast.LENGTH_SHORT).show();
-                        Log.e("YARUD", "GAGAL");
-                    }
-                }){
-            @Override
-            public Map<String, String> getHeaders() {
-                HashMap<String, String> params = new HashMap<>();
-                String creds = String.format("%s:%s", "svc", "kambinggulingmbe");
-                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
-                params.put("Authorization", auth);
-                return params;
-            }
-        };
-        requestQueue.add(stringRequest);
-    }
-
-    private void getMahasiswa(String idmk) {
-        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, Config.URL_MHS_MATKUL + idmk,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        listnim = new ArrayList<>();
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            for (int i=0; i<jsonArray.length(); i++){
-                                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-                                listnim.add(jsonObject.getString("NIM"));
+                    }){
+                @Override
+                public Map<String, String> getHeaders() {
+                    HashMap<String, String> params = new HashMap<>();
+                    String creds = String.format("%s:%s", "svc", "kambinggulingmbe");
+                    String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
+                    params.put("Authorization", auth);
+                    return params;
+                }
+            };
+            requestQueue.add(stringRequest);
+        }
+        private void getMahasiswa(String idmk) {
+            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, Config.URL_MHS_MATKUL + idmk,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            listnim = new ArrayList<>();
+                            try {
+                                JSONArray jsonArray = new JSONArray(response);
+                                for (int i=0; i<jsonArray.length(); i++){
+                                    JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                                    listnim.add(jsonObject.getString("NIM"));
+                                }
+                                String ListNim = String.valueOf(listnim);
+                                keScanActivity(ListNim);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                            String ListNim = String.valueOf(listnim);
-                            keScanActivity(ListNim);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        displaySuccess();
-                        Toast.makeText(MainActivity.this, "Tidak ada Jadwal", Toast.LENGTH_SHORT).show();
-                    }
-                }){
-            @Override
-            public Map<String, String> getHeaders() {
-                HashMap<String, String> params = new HashMap<>();
-                String creds = String.format("%s:%s", "svc", "kambinggulingmbe");
-                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
-                params.put("Authorization", auth);
-                return params;
-            }
-        };
-        requestQueue.add(stringRequest);
-    }
-
-    private void keScanActivity(String listNim) {
-        Toast.makeText(this, listNim, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(MainActivity.this, ScanQRActivity.class);
-        intent.putExtra("LISTNIM",listNim);
-        startActivity(intent);
-    }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            displaySuccess();
+                            Toast.makeText(MainActivity.this, "Tidak ada Jadwal", Toast.LENGTH_SHORT).show();
+                        }
+                    }){
+                @Override
+                public Map<String, String> getHeaders() {
+                    HashMap<String, String> params = new HashMap<>();
+                    String creds = String.format("%s:%s", "svc", "kambinggulingmbe");
+                    String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
+                    params.put("Authorization", auth);
+                    return params;
+                }
+            };
+            requestQueue.add(stringRequest);
+        }
 
     private void keamananDialog() {
         final String usernameEdit = "admin", kataSandi = "admin123";
@@ -311,6 +281,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         yes.setTextColor(Color.rgb(29,145,36));
     }
 
+    private void cekInternet(){
+            timer = new Timer();
+            timer.schedule(new NetworkStatus(this, "main"),0,waktu);
+    }
+
+    private void matikanPengecekanInternet(){
+            timer.cancel();
+            timer.purge();
+            timer = new Timer();
+    }
+
+    private void keScanActivity(String listNim) {
+        Toast.makeText(this, listNim, Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(MainActivity.this, ScanQRActivity.class);
+        intent.putExtra("LISTNIM",listNim);
+        startActivity(intent);
+    }
+
     private void keFormRuanganActivity() {
         dbHandler.deleteRuangan();
         Intent intent = new Intent(MainActivity.this, FormRuanganActivity.class);
@@ -330,5 +318,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
         cekInternet();
         initRunning();
+    }
+
+    private void displayLoading() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.VISIBLE);
+                scannerButton.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    public void displayFailed() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.GONE);
+                scannerButton.setVisibility(View.GONE);
+                informasiText.setText(R.string.no_internet);
+            }
+        });
+    }
+
+    public void displaySuccess(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.GONE);
+                scannerButton.setVisibility(View.VISIBLE);
+            }
+        });
     }
 }
