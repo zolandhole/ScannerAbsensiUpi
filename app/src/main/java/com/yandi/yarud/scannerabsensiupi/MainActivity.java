@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         initListenner();
         animation();
-        initRunning();
 
     }
 
@@ -114,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         prepareAnimation();
         textViewGreeting.animate().alpha(1).translationX(0).setDuration(600).setStartDelay(500).start();
         namaRuangan.animate().alpha(1).translationX(0).setDuration(600).setStartDelay(700).start();
-        scannerButton.animate().alpha(1).translationX(0).setDuration(600).setStartDelay(900).start();
     }
         private void prepareAnimation() {
             textViewGreeting.setAlpha(0);
@@ -122,9 +120,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             namaRuangan.setAlpha(0);
             namaRuangan.setTranslationX(-300);
+        }
+    private void goneAnimation(){
+        prepareGoneAnimation();
+        textViewGreeting.animate().alpha(0).translationX(-300).setDuration(600).setStartDelay(500).start();
+        namaRuangan.animate().alpha(0).translationX(-300).setDuration(600).setStartDelay(700).start();
+    }
+        private void prepareGoneAnimation() {
+            textViewGreeting.setAlpha(1);
+            textViewGreeting.setTranslationX(0);
 
-            scannerButton.setAlpha(0);
-            scannerButton.setTranslationX(-500);
+            namaRuangan.setAlpha(1);
+            namaRuangan.setTranslationX(0);
         }
 
     private void initRunning() {
@@ -176,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Log.e("YARUD", "BERHASIL");
                                 displaySuccess();
                                 getMahasiswa(idmk);
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -215,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                                     listnim.add(jsonObject.getString("NIM"));
                                 }
+                                goneAnimation();
                                 String ListNim = String.valueOf(listnim);
                                 keScanActivity(ListNim);
                             } catch (JSONException e) {
@@ -226,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             displaySuccess();
+                            animation();
                             Toast.makeText(MainActivity.this, "Tidak ada Jadwal", Toast.LENGTH_SHORT).show();
                         }
                     }){
