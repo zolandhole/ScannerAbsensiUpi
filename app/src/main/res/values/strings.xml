@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Scanner Absensi Upi</string>
+    <string name="app_name">ScannerAbsensi</string>
     <string name="sambutan">Selamat Datang di Ruangan</string>
     <string name="absen">Absen</string>
     <string name="nama_ruangan">Nama Ruangan</string>
