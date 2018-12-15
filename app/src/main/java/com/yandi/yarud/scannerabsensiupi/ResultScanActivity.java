@@ -107,7 +107,7 @@ public class ResultScanActivity extends AppCompatActivity {
             imageViewSuccess.setImageResource(R.drawable.icon_sad_red);
             textViewDoa.setText("Ups !");
             textViewDoa.setTextColor(R.color.colorPrimary);
-            textViewResultNama.setText("Kita tidak menemukan nama Anda di Matakuliah ini");
+            textViewResultNama.setText("Kita tidak menemukan data Anda di Matakuliah ini");
             nmp.start();
         }
     }

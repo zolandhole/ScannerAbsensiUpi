@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Timer timer;
     private DBHandler dbHandler;
     private String koderuanganDB, namaRuanganDB;
-    private ConstraintLayout layarUtama;
     private ArrayList<String> listnim;
     private String idmk;
 
@@ -93,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         namaRuangan = findViewById(R.id.textViewNamaRuangan);
         informasiText = findViewById(R.id.textViewInfo);
         progressBar = findViewById(R.id.progressBar);
-        layarUtama = findViewById(R.id.MainConstraint);
         textViewGreeting = findViewById(R.id.textViewGreeting);
     }
 
@@ -104,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         namaRuangan.setVisibility(View.GONE);
         namaRuangan.setText(R.string.nama_ruangan);
         dbHandler = new DBHandler(MainActivity.this);
-        layarUtama.setOnClickListener(this);
         Typeface caviar = Typeface.createFromAsset(getAssets(),"fonts/CaviarDreams.ttf");
         namaRuangan.setTypeface(caviar);
     }
