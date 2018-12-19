@@ -178,7 +178,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     idmk = jsonObject.getString("id");
                                 }
                                 Log.e("YARUD", "BERHASIL");
-                                displaySuccess();
                                 getMahasiswa(idmk);
 
                             } catch (JSONException e) {
@@ -221,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     listnim.add(jsonObject.getString("NIM"));
                                 }
                                 goneAnimation();
+                                displaySuccess();
                                 String ListNim = String.valueOf(listnim);
                                 keScanActivity(ListNim);
                             } catch (JSONException e) {
